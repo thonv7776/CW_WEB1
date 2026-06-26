@@ -1,38 +1,40 @@
 <?php
-if(isset($_POST['joketext'])){
-    try{
+if (isset($_POST['title'])) {
+    try {
         include 'includes/DatabaseConnection.php';
+        $image = $_FILES['image']['name'] ?? null;
+        if ($image) {
+            move_uploaded_file($_FILES['image']['tmp_name'], 'images/' . $image);
+        }
 
-        $image = $_FILES['image']['name'];
-        move_uploaded_file($_FILES['image']['tmp_name'], 'images/' . $image);
-
-        $sql = 'INSERT INTO joke SET 
-        joketext = :joketext,
-        jokedate = CURDATE(),
-        image = :image,
-        authorid = :authorid,
-        categoryid = :categoryid';
+        $sql = 'INSERT INTO questions SET 
+                title = :title,
+                content = :content,
+                image = :image,
+                user_id = :user_id,
+                module_id = :module_id';
         
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':joketext', $_POST['joketext']);
+        $stmt->bindValue(':title', $_POST['title']);
+        $stmt->bindValue(':content', $_POST['content']);
         $stmt->bindValue(':image', $image);
-        $stmt->bindValue(':authorid', $_POST['authors']);
-        $stmt->bindValue(':categoryid', $_POST['categories']);
+        $stmt->bindValue(':user_id', $_POST['user_id']);
+        $stmt->bindValue(':module_id', $_POST['module_id']);
         $stmt->execute();
-        header('location: jokes.php');
-    }catch (PDOException $e){
+        
+        header('location: questions.php'); 
+    } catch (PDOException $e) {
         $title = 'An error has occurred';
         $output = 'Database error: ' . $e->getMessage();
     }
-}else{
+} else {
     include 'includes/DatabaseConnection.php';
-    $title = 'Add a new joke';
-    $sql_a = 'SELECT * FROM author';
-    $authors = $pdo->query($sql_a);
-    $sql_c = 'SELECT * FROM category';
-    $categories = $pdo->query($sql_c);
+    $title = 'Add a new question';
+    $users = $pdo->query('SELECT * FROM users');
+    $modules = $pdo->query('SELECT * FROM modules');
+    
     ob_start();
-    include 'templates/addjoke.html.php';
+    include 'templates/addquestion.html.php';
     $output = ob_get_clean();
 }
 include 'templates/layout.html.php';

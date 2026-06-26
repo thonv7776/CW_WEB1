@@ -1,15 +1,15 @@
 <?php
-try{
+try {
     include 'includes/DatabaseConnection.php';
 
-    $sql = 'DELETE FROM joke WHERE id = :id';
+    $sql = 'DELETE FROM questions WHERE question_id = :id';
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':id', $_POST['id']);
     $stmt->execute();
-    header('location: jokes.php');
-}catch (PDOException $e){
+    header('location: questions.php');
+} catch (PDOException $e) {
     $title = 'An error has occurred';
-    $output = 'Unable to connect to delete joke: ' .$e->getMessage();
+    $output = 'Unable to delete question: ' . $e->getMessage();
 }
 include 'templates/layout.html.php';
 ?>
